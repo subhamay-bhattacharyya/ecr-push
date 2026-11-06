@@ -3,6 +3,28 @@ name: ECR Build and Push
 
 on:
   workflow_dispatch:
+    inputs:
+      ecr-repository:
+        description: ECR repository name (must already exist)
+        required: true
+        type: string
+        default: "270453428528.dkr.ecr.us-east-1.amazonaws.com/elara-agent-core-270453428528-devl-us-east-1"
+      aws-region:
+        required: true
+        type: string
+        default: "us-east-1"
+      context:
+        required: false
+        type: string
+        default: .
+      dockerfile:
+        required: false
+        type: string
+        default: Dockerfile
+      platforms:
+        required: false
+        type: string
+        default: linux/amd64
   push:
     branches: [main]
 
@@ -12,7 +34,7 @@ permissions:
 
 jobs:
   hello:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-26.04
     steps:
       - name: Print run context
         run: |
@@ -21,7 +43,7 @@ jobs:
           echo "Commit SHA: $GITHUB_SHA"
           echo "Triggered by: $GITHUB_ACTOR"
       
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7.0.1
 
       - uses: aws-actions/configure-aws-credentials@v4
         with:
@@ -32,3 +54,24 @@ jobs:
         uses: aws-actions/amazon-ecr-login@v2
 
       - uses: docker/setup-buildx-action@v3
+
+      - id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: ${{ steps.login-ecr.outputs.registry }}/${{ inputs.ecr-repository }}
+          tags: |
+            type=sha
+            type=ref,event=branch
+            type=raw,value=latest,enable={{is_default_branch}}
+
+      - id: build
+        uses: docker/build-push-action@v6
+        with:
+          context: ${{ inputs.context }}
+          file: ${{ inputs.dockerfile }}
+          platforms: ${{ inputs.platforms }}
+          push: true
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
