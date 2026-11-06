@@ -1,5 +1,5 @@
 # .github/workflows/hello-world.yml
-name: Hello World
+name: ECR Build and Push
 
 on:
   workflow_dispatch:
@@ -8,6 +8,7 @@ on:
 
 permissions:
   contents: read
+  id-token: write
 
 jobs:
   hello:
