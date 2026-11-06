@@ -71,7 +71,7 @@ jobs:
           file: ${{ inputs.dockerfile }}
           platforms: ${{ inputs.platforms }}
           push: true
-          tags: ${{ steps.meta.outputs.tags }}
-          labels: ${{ steps.meta.outputs.labels }}
+          tags: ${{ github.sha }}
+          labels: ${{ github.ref_name }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
