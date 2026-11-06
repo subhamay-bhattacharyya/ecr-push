@@ -8,7 +8,7 @@ on:
         description: ECR repository name (must already exist)
         required: true
         type: string
-        default: "270453428528.dkr.ecr.us-east-1.amazonaws.com/elara-agent-core-270453428528-devl-us-east-1"
+        default: "elara-agent-core-270453428528-devl-us-east-1"
       aws-region:
         required: true
         type: string
